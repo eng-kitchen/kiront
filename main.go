@@ -8,6 +8,8 @@ import (
 
 	"github.com/gen2brain/beeep"
 	"github.com/getlantern/systray"
+	"github.com/sparkreel/kiront/internal/autostart"
+	"github.com/sparkreel/kiront/internal/config"
 	"github.com/sparkreel/kiront/internal/controller"
 	"github.com/sparkreel/kiront/internal/process"
 )
@@ -41,6 +43,8 @@ func onReady() {
 	// Create menu items
 	mToggle := systray.AddMenuItem("Toggle Mode", "Switch between Anthropic and Kiro modes")
 	systray.AddSeparator()
+	mAutoStart := systray.AddMenuItemCheckbox("Start at Login", "Launch KiroToggle on macOS login", ctrl.GetConfig().AutoStart)
+	systray.AddSeparator()
 	mQuit := systray.AddMenuItem("Quit", "Quit KiroToggle")
 
 	// Handle clicks
@@ -49,6 +53,8 @@ func onReady() {
 			select {
 			case <-mToggle.ClickedCh:
 				handleToggle()
+			case <-mAutoStart.ClickedCh:
+				handleAutoStartToggle(mAutoStart)
 			case <-mQuit.ClickedCh:
 				systray.Quit()
 			}
@@ -84,6 +90,33 @@ func handleToggle() {
 	}
 
 	beeep.Notify("KiroToggle", msg, "")
+}
+
+func handleAutoStartToggle(item *systray.MenuItem) {
+	cfg := ctrl.GetConfig()
+
+	if cfg.AutoStart {
+		// Disable auto-start
+		if err := autostart.Disable(); err != nil {
+			beeep.Alert("KiroToggle Error", "Failed to disable auto-start: "+err.Error(), "")
+			return
+		}
+		cfg.AutoStart = false
+		item.Uncheck()
+	} else {
+		// Enable auto-start
+		if err := autostart.Enable(); err != nil {
+			beeep.Alert("KiroToggle Error", "Failed to enable auto-start: "+err.Error(), "")
+			return
+		}
+		cfg.AutoStart = true
+		item.Check()
+	}
+
+	// Save config
+	if err := config.Save(cfg); err != nil {
+		log.Printf("Warning: failed to save config: %v", err)
+	}
 }
 
 func onExit() {
