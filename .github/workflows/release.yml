@@ -1,0 +1,73 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-release:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build app
+        run: make build
+
+      - name: Sign app (ad-hoc)
+        run: |
+          codesign --sign - --force --deep Kiront.app
+          xattr -cr Kiront.app
+
+      - name: Package DMG
+        run: |
+          hdiutil create \
+            -volname "Kiront" \
+            -srcfolder Kiront.app \
+            -ov \
+            -format UDZO \
+            Kiront.dmg
+
+      - name: Create GitHub Release
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            Kiront.dmg \
+            --title "Kiront $GITHUB_REF_NAME" \
+            --generate-notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare landing page
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          mkdir -p _site
+          sed "s/{{VERSION}}/$VERSION/g" docs/index.html > _site/index.html
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site/
+
+  deploy-pages:
+    needs: build-release
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy-pages.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy-pages
+        uses: actions/deploy-pages@v4
