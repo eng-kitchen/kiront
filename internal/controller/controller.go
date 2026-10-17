@@ -134,6 +134,62 @@ func (c *Controller) switchToAnthropicMode() error {
 	return nil
 }
 
+// RecoverState recovers from an inconsistent state after a crash
+func (c *Controller) RecoverState() error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	// Load config from disk
+	cfg, err := config.LoadFrom(c.configPath)
+	if err != nil {
+		return fmt.Errorf("failed to load config during recovery: %w", err)
+	}
+	c.cfg = cfg
+
+	// If config says Kiro mode, check if gateway is actually running
+	if cfg.CurrentMode == "kiro" {
+		if !c.gateway.IsRunning() {
+			// Orphaned state: gateway not running but config says Kiro
+			log.Println("Detected orphaned state: config says Kiro mode but gateway not running")
+
+			// Try to start gateway
+			if err := c.gateway.Setup(cfg.KiroAPIKey, cfg.KiroCLIDBPath); err != nil {
+				log.Printf("Failed to setup gateway during recovery: %v", err)
+				return c.recoverToAnthropicMode()
+			}
+
+			if err := c.gateway.Start(); err != nil {
+				log.Printf("Failed to restart gateway during recovery: %v", err)
+				return c.recoverToAnthropicMode()
+			}
+
+			log.Println("Successfully restarted gateway during recovery")
+		}
+	}
+
+	return nil
+}
+
+// recoverToAnthropicMode switches to Anthropic mode during recovery
+func (c *Controller) recoverToAnthropicMode() error {
+	log.Println("Recovering to Anthropic mode")
+
+	// Restore settings if backup exists
+	if c.settings.HasBackup() {
+		if err := c.settings.Restore(); err != nil {
+			log.Printf("Warning: failed to restore settings during recovery: %v", err)
+		}
+	}
+
+	// Update config
+	c.cfg.CurrentMode = "anthropic"
+	if err := config.SaveTo(c.configPath, c.cfg); err != nil {
+		log.Printf("Warning: failed to save config during recovery: %v", err)
+	}
+
+	return nil
+}
+
 // Shutdown cleanly shuts down the controller
 func (c *Controller) Shutdown() error {
 	c.mu.Lock()

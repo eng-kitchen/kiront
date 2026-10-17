@@ -37,6 +37,11 @@ func onReady() {
 
 	ctrl = controller.NewController(configPath, settingsPath, backupPath, gatewayDir, 8000)
 
+	// Recover state on startup (handle crashes)
+	if err := ctrl.RecoverState(); err != nil {
+		log.Printf("State recovery failed: %v", err)
+	}
+
 	// Set initial icon/title
 	updateMenuBar()
 
