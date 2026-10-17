@@ -26,7 +26,7 @@ func NewManager(gatewayDir string, port int) *Manager {
 		// Fallback to temp directory if home dir cannot be determined
 		homeDir = os.TempDir()
 	}
-	pidFile := filepath.Join(homeDir, ".kirotoggle", "gateway.pid")
+	pidFile := filepath.Join(homeDir, ".kiront", "gateway.pid")
 
 	return &Manager{
 		gatewayDir: gatewayDir,

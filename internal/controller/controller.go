@@ -5,10 +5,10 @@ import (
 	"log"
 	"sync"
 
-	"github.com/sparkreel/kiront/internal/config"
-	"github.com/sparkreel/kiront/internal/gateway"
-	"github.com/sparkreel/kiront/internal/process"
-	"github.com/sparkreel/kiront/internal/settings"
+	"github.com/eng-kitchen/kiront/internal/config"
+	"github.com/eng-kitchen/kiront/internal/gateway"
+	"github.com/eng-kitchen/kiront/internal/process"
+	"github.com/eng-kitchen/kiront/internal/settings"
 )
 
 type Controller struct {

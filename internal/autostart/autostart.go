@@ -12,7 +12,7 @@ const plistTemplate = `<?xml version="1.0" encoding="UTF-8"?>
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.sparkreel.kirotoggle</string>
+    <string>uy.ck.kiront</string>
     <key>ProgramArguments</key>
     <array>
         <string>{{.ExecutablePath}}</string>
@@ -34,7 +34,7 @@ func getPlistPath() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to get home directory: %w", err)
 	}
-	return filepath.Join(home, "Library", "LaunchAgents", "com.sparkreel.kirotoggle.plist"), nil
+	return filepath.Join(home, "Library", "LaunchAgents", "uy.ck.kiront.plist"), nil
 }
 
 // Enable creates the LaunchAgent plist file to start the app on login

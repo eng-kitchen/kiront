@@ -21,12 +21,12 @@ func NewManager(settingsPath, backupPath string) *Manager {
 	}
 }
 
-// New creates a manager using default paths (~/.claude/settings.json and ~/.kirotoggle/settings.backup.json)
+// New creates a manager using default paths (~/.claude/settings.json and ~/.kiront/settings.backup.json)
 func New() *Manager {
 	home := os.Getenv("HOME")
 	return NewManager(
 		filepath.Join(home, ".claude", "settings.json"),
-		filepath.Join(home, ".kirotoggle", "settings.backup.json"),
+		filepath.Join(home, ".kiront", "settings.backup.json"),
 	)
 }
 

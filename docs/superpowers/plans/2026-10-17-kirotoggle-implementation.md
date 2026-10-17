@@ -1,4 +1,4 @@
-# KiroToggle Implementation Plan
+# Kiront Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -8,14 +8,14 @@
 
 **Tech Stack:** Go 1.21+, `github.com/getlantern/systray` for menu bar, standard library for process management and JSON handling.
 
-**Spec:** `/Users/yuri/Projects/kiront/2026-10-17-kirotoggle-design.md`
+**Spec:** `/Users/yuri/Projects/kiront/2026-10-17-kiront-design.md`
 
 ## Global Constraints
 
 - Gateway bundled at `gateway/` directory relative to executable
 - Claude Code settings at `~/.claude/settings.json` - must use atomic writes (temp file + rename)
-- App config at `~/.kirotoggle/config.json`
-- Settings backup at `~/.kirotoggle/settings.backup.json`
+- App config at `~/.kiront/config.json`
+- Settings backup at `~/.kiront/settings.backup.json`
 - Gateway runs on port 8000
 - PROXY_API_KEY must match ANTHROPIC_API_KEY
 - Python 3.x required, invoked as `python3`
@@ -54,7 +54,7 @@ kiront/
 │   ├── requirements.txt
 │   └── ... (all gateway files)
 └── docs/superpowers/plans/
-    └── 2026-10-17-kirotoggle-implementation.md
+    └── 2026-10-17-kiront-implementation.md
 ```
 
 ---
@@ -171,11 +171,11 @@ Expected: PASS
 
 ```go
 func Load() (*Config, error) {
-    return LoadFrom(filepath.Join(os.Getenv("HOME"), ".kirotoggle", "config.json"))
+    return LoadFrom(filepath.Join(os.Getenv("HOME"), ".kiront", "config.json"))
 }
 
 func Save(cfg *Config) error {
-    return SaveTo(filepath.Join(os.Getenv("HOME"), ".kirotoggle", "config.json"), cfg)
+    return SaveTo(filepath.Join(os.Getenv("HOME"), ".kiront", "config.json"), cfg)
 }
 ```
 
@@ -387,7 +387,7 @@ func New() *Manager {
     home := os.Getenv("HOME")
     return NewManager(
         filepath.Join(home, ".claude", "settings.json"),
-        filepath.Join(home, ".kirotoggle", "settings.backup.json"),
+        filepath.Join(home, ".kiront", "settings.backup.json"),
     )
 }
 ```
@@ -522,7 +522,7 @@ Implementation:
 1. Start process: `cd gateway && .venv/bin/python main.py`
 2. TCP dial port 8000 until successful (timeout 10s)
 3. Poll GET http://127.0.0.1:8000/health until returns `{"status": "healthy"}` (timeout 20s)
-4. Store PID in pidFile (`~/.kirotoggle/gateway.pid`)
+4. Store PID in pidFile (`~/.kiront/gateway.pid`)
 5. Return error if any step fails or times out
 
 - [ ] **Step 8: Run test to verify it passes**
@@ -887,7 +887,7 @@ func onExit() {
 
 - [ ] **Step 2: Build to verify it compiles**
 
-Run: `go build -o kirotoggle .`
+Run: `go build -o kiront .`
 Expected: Binary created successfully
 
 - [ ] **Step 3: Implement onReady with menu bar items**
@@ -899,9 +899,9 @@ var ctrl *controller.Controller
 func onReady() {
     // Initialize controller
     home := os.Getenv("HOME")
-    configPath := filepath.Join(home, ".kirotoggle", "config.json")
+    configPath := filepath.Join(home, ".kiront", "config.json")
     settingsPath := filepath.Join(home, ".claude", "settings.json")
-    backupPath := filepath.Join(home, ".kirotoggle", "settings.backup.json")
+    backupPath := filepath.Join(home, ".kiront", "settings.backup.json")
     
     // Determine gateway directory (relative to executable)
     execPath, _ := os.Executable()
@@ -916,7 +916,7 @@ func onReady() {
     // Create menu items
     mToggle := systray.AddMenuItem("Toggle Mode", "Switch between Anthropic and Kiro modes")
     systray.AddSeparator()
-    mQuit := systray.AddMenuItem("Quit", "Quit KiroToggle")
+    mQuit := systray.AddMenuItem("Quit", "Quit Kiront")
     
     // Handle clicks
     go func() {
@@ -935,10 +935,10 @@ func updateMenuBar() {
     mode := ctrl.GetCurrentMode()
     if mode == "kiro" {
         systray.SetTitle("K")
-        systray.SetTooltip("KiroToggle - Kiro Mode")
+        systray.SetTooltip("Kiront - Kiro Mode")
     } else {
         systray.SetTitle("A")
-        systray.SetTooltip("KiroToggle - Anthropic Mode")
+        systray.SetTooltip("Kiront - Anthropic Mode")
     }
 }
 
@@ -968,7 +968,7 @@ func onExit() {
 
 - [ ] **Step 4: Build and manually test**
 
-Run: `go build -o kirotoggle .`
+Run: `go build -o kiront .`
 Expected: Binary runs, shows menu bar icon, can toggle modes
 
 - [ ] **Step 5: Add macOS notification support**
@@ -985,7 +985,7 @@ import "github.com/gen2brain/beeep"
 func handleToggle() {
     err := ctrl.ToggleMode()
     if err != nil {
-        beeep.Alert("KiroToggle Error", err.Error(), "")
+        beeep.Alert("Kiront Error", err.Error(), "")
         return
     }
     
@@ -998,13 +998,13 @@ func handleToggle() {
         msg += "\n\n⚠️ Please restart Claude Code sessions for changes to take effect."
     }
     
-    beeep.Notify("KiroToggle", msg, "")
+    beeep.Notify("Kiront", msg, "")
 }
 ```
 
 - [ ] **Step 6: Test manually**
 
-Run: `go build -o kirotoggle . && ./kirotoggle`
+Run: `go build -o kiront . && ./kiront`
 Test: Toggle modes, verify notifications appear
 
 - [ ] **Step 7: Commit**
@@ -1101,7 +1101,7 @@ const plistTemplate = `<?xml version="1.0" encoding="UTF-8"?>
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.sparkreel.kirotoggle</string>
+    <string>uy.ck.kiront</string>
     <key>ProgramArguments</key>
     <array>
         <string>{{.ExecutablePath}}</string>
@@ -1119,7 +1119,7 @@ func IsEnabled() bool
 ```
 
 Implementation: 
-- Enable: Write plist to `~/Library/LaunchAgents/com.sparkreel.kirotoggle.plist`
+- Enable: Write plist to `~/Library/LaunchAgents/uy.ck.kiront.plist`
 - Disable: Remove plist file
 - IsEnabled: Check if plist file exists
 
@@ -1129,9 +1129,9 @@ Update `onReady()` in `main.go`:
 ```go
 mToggle := systray.AddMenuItem("Toggle Mode", "Switch between Anthropic and Kiro modes")
 systray.AddSeparator()
-mAutoStart := systray.AddMenuItemCheckbox("Start at Login", "Launch KiroToggle on macOS login", ctrl.GetConfig().AutoStart)
+mAutoStart := systray.AddMenuItemCheckbox("Start at Login", "Launch Kiront on macOS login", ctrl.GetConfig().AutoStart)
 systray.AddSeparator()
-mQuit := systray.AddMenuItem("Quit", "Quit KiroToggle")
+mQuit := systray.AddMenuItem("Quit", "Quit Kiront")
 
 // In event loop:
 case <-mAutoStart.ClickedCh:
@@ -1152,7 +1152,7 @@ func handleAutoStartToggle(item *systray.MenuItem) {
         // Enable
         err := autostart.Enable()
         if err != nil {
-            beeep.Alert("KiroToggle Error", "Failed to enable auto-start: "+err.Error(), "")
+            beeep.Alert("Kiront Error", "Failed to enable auto-start: "+err.Error(), "")
             return
         }
         cfg.AutoStart = true
@@ -1235,11 +1235,11 @@ updateMenuBar()
 
 - [ ] **Step 3: Test crash recovery manually**
 
-1. Build and run KiroToggle
+1. Build and run Kiront
 2. Toggle to Kiro mode
 3. Kill the app with `kill -9 <pid>`
 4. Kill gateway process manually
-5. Restart KiroToggle
+5. Restart Kiront
 6. Verify it attempts to restart gateway or falls back to Anthropic mode
 
 - [ ] **Step 4: Commit**
@@ -1264,7 +1264,7 @@ git commit -m "feat: add crash recovery and state restoration"
 - [ ] **Step 1: Write README.md**
 
 Create `README.md` with sections:
-- What is KiroToggle
+- What is Kiront
 - Requirements (macOS, Python 3.x, Claude Code)
 - Installation (build from source, future: download binary)
 - Usage (menu bar icon, toggle modes, settings)
@@ -1306,36 +1306,36 @@ Create `Makefile`:
 .PHONY: build clean install test
 
 build:
-	go build -o bin/kirotoggle .
+	go build -o bin/kiront .
 
 clean:
 	rm -rf bin/
 
 install: build
 	mkdir -p ~/bin
-	cp bin/kirotoggle ~/bin/
-	chmod +x ~/bin/kirotoggle
+	cp bin/kiront ~/bin/
+	chmod +x ~/bin/kiront
 
 test:
 	go test ./... -v
 
 run: build
-	./bin/kirotoggle
+	./bin/kiront
 ```
 
 - [ ] **Step 2: Test build**
 
 Run: `make build`
-Expected: Binary created at `bin/kirotoggle`
+Expected: Binary created at `bin/kiront`
 
 - [ ] **Step 3: Create install target**
 
 Run: `make install`
-Expected: Binary copied to `~/bin/kirotoggle`
+Expected: Binary copied to `~/bin/kiront`
 
 - [ ] **Step 4: Verify installed binary works**
 
-Run: `~/bin/kirotoggle`
+Run: `~/bin/kiront`
 Expected: Menu bar app launches successfully
 
 - [ ] **Step 5: Commit**
@@ -1352,9 +1352,9 @@ git commit -m "build: add Makefile for build and install"
 After all tasks complete, perform end-to-end testing:
 
 1. **Clean state test:**
-   - Remove `~/.kirotoggle/` directory
+   - Remove `~/.kiront/` directory
    - Remove any gateway processes
-   - Launch KiroToggle
+   - Launch Kiront
    - Verify default Anthropic mode
    - Toggle to Kiro mode
    - Verify gateway starts, settings.json modified, backup created
@@ -1363,13 +1363,13 @@ After all tasks complete, perform end-to-end testing:
 
 2. **Crash recovery test:**
    - Toggle to Kiro mode
-   - Kill KiroToggle with `kill -9`
-   - Restart KiroToggle
+   - Kill Kiront with `kill -9`
+   - Restart Kiront
    - Verify state recovered correctly
 
 3. **Claude Code integration test:**
    - Start Claude Code session
-   - Toggle KiroToggle to Kiro mode
+   - Toggle Kiront to Kiro mode
    - Verify notification appears about restarting Claude Code
    - Exit Claude Code
    - Start new Claude Code session
@@ -1378,5 +1378,5 @@ After all tasks complete, perform end-to-end testing:
 4. **Auto-start test:**
    - Enable auto-start
    - Log out and log back in
-   - Verify KiroToggle launches automatically
+   - Verify Kiront launches automatically
    - Verify it's in the mode it was before logout

@@ -99,9 +99,9 @@ func SaveTo(path string, cfg *Config) error {
 }
 
 func Load() (*Config, error) {
-	return LoadFrom(filepath.Join(os.Getenv("HOME"), ".kirotoggle", "config.json"))
+	return LoadFrom(filepath.Join(os.Getenv("HOME"), ".kiront", "config.json"))
 }
 
 func Save(cfg *Config) error {
-	return SaveTo(filepath.Join(os.Getenv("HOME"), ".kirotoggle", "config.json"), cfg)
+	return SaveTo(filepath.Join(os.Getenv("HOME"), ".kiront", "config.json"), cfg)
 }

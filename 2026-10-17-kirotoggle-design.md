@@ -1,8 +1,8 @@
-# KiroToggle Design
+# Kiront Design
 
 ## Intent
 
-KiroToggle is a macOS menu bar application that simplifies switching between two Claude Code operational modes: standard Anthropic API mode and Kiro mode (which routes through a local gateway). Currently, switching requires manual steps including activating Python environments, starting gateway servers, and modifying configuration files. This app reduces the entire workflow to single-click toggles.
+Kiront is a macOS menu bar application that simplifies switching between two Claude Code operational modes: standard Anthropic API mode and Kiro mode (which routes through a local gateway). Currently, switching requires manual steps including activating Python environments, starting gateway servers, and modifying configuration files. This app reduces the entire workflow to single-click toggles.
 
 ## Why Now
 
@@ -72,7 +72,7 @@ This happens frequently enough that the friction adds up. A dedicated app elimin
 
 ### Settings Storage
 
-The app stores its own configuration in `~/.kirotoggle/config.json`:
+The app stores its own configuration in `~/.kiront/config.json`:
 ```json
 {
   "kiro_api_key": "s13b45d1c-87499akj694cubHjb-k8ujbli8j",
@@ -115,7 +115,7 @@ Note: `PROXY_API_KEY` in gateway/.env must match `ANTHROPIC_API_KEY` in Claude C
 ```
 
 **Backup Strategy:**
-- Before first Kiro mode switch, copy `~/.claude/settings.json` to `~/.kirotoggle/settings.backup.json`
+- Before first Kiro mode switch, copy `~/.claude/settings.json` to `~/.kiront/settings.backup.json`
 - Restore from backup when switching back to Anthropic mode
 - Re-backup each time we switch to Kiro mode (in case user manually edited settings while in Anthropic mode)
 
@@ -181,7 +181,7 @@ The gateway code will be bundled within the kiront repository itself (not as an 
 - Orphaned gateway processes after app crash: search by process name or port binding on restart
 - If config says "kiro" mode but gateway isn't running on restart: auto-start gateway or switch to "disconnected" state
 - Port 8000 already in use: fail gracefully with clear error message
-- Multiple KiroToggle instances: use lock file or process check to prevent
+- Multiple Kiront instances: use lock file or process check to prevent
 - Gateway dependency installation failures: show error and recovery steps
 - settings.json malformed or read-only: detect and show clear error
 - Missing settings.backup.json when restoring: warn and refuse to toggle back

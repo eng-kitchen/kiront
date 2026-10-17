@@ -1,4 +1,4 @@
-module github.com/sparkreel/kiront
+module github.com/eng-kitchen/kiront
 
 go 1.26.5
 

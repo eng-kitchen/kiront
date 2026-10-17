@@ -1,6 +1,6 @@
-# KiroToggle Usage Guide
+# Kiront Usage Guide
 
-This guide provides detailed instructions for using KiroToggle to switch between Anthropic and Kiro modes for Claude Code.
+This guide provides detailed instructions for using Kiront to switch between Anthropic and Kiro modes for Claude Code.
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@ This guide provides detailed instructions for using KiroToggle to switch between
 
 ## First-Time Setup
 
-### 1. Install KiroToggle
+### 1. Install Kiront
 
 ```bash
 # Build and install
@@ -26,20 +26,20 @@ make install
 
 ### 2. Initial Launch
 
-When you first run KiroToggle:
+When you first run Kiront:
 
 ```bash
-~/bin/kirotoggle
+~/bin/kiront
 ```
 
 The app will:
-- Create `~/.kirotoggle/` directory
+- Create `~/.kiront/` directory
 - Generate default `config.json`
 - Appear in your menu bar as "A" (Anthropic mode - the default)
 
 ### 3. Configure Your API Key
 
-Edit `~/.kirotoggle/config.json` to set your Kiro API key:
+Edit `~/.kiront/config.json` to set your Kiro API key:
 
 ```json
 {
@@ -55,19 +55,19 @@ Edit `~/.kirotoggle/config.json` to set your Kiro API key:
 
 ### 4. Verify Gateway Bundle
 
-The gateway code is bundled within KiroToggle. Verify it's present:
+The gateway code is bundled within Kiront. Verify it's present:
 
 ```bash
-ls "$(dirname $(which kirotoggle))/gateway/main.py"
+ls "$(dirname $(which kiront))/gateway/main.py"
 ```
 
-If missing, ensure you built KiroToggle from the correct directory with the bundled gateway.
+If missing, ensure you built Kiront from the correct directory with the bundled gateway.
 
 ## Basic Usage
 
 ### Menu Bar Icon
 
-KiroToggle shows its status in the macOS menu bar:
+Kiront shows its status in the macOS menu bar:
 
 - **A** = Anthropic Mode (direct connection to Anthropic API)
 - **K** = Kiro Mode (routing through local gateway)
@@ -81,7 +81,7 @@ Toggle Mode           ← Switch between Anthropic and Kiro
 ─────────────────
 ☑ Start at Login     ← Auto-start on macOS login (checkable)
 ─────────────────
-Quit                  ← Exit KiroToggle
+Quit                  ← Exit Kiront
 ```
 
 ## Understanding Modes
@@ -121,13 +121,13 @@ Quit                  ← Exit KiroToggle
 ### Switching to Kiro Mode
 
 **Steps**:
-1. Click the KiroToggle menu bar icon (shows "A")
+1. Click the Kiront menu bar icon (shows "A")
 2. Click "Toggle Mode"
 3. Wait for the notification: "Switched to kiro mode"
 4. Icon changes to "K"
 
 **What happens automatically**:
-1. ✅ Your current `~/.claude/settings.json` is backed up to `~/.kirotoggle/settings.backup.json`
+1. ✅ Your current `~/.claude/settings.json` is backed up to `~/.kiront/settings.backup.json`
 2. ✅ Gateway Python environment is set up (first time only: creates venv, installs dependencies)
 3. ✅ Gateway `.env` file is created with your API key and configuration
 4. ✅ Gateway server starts on port 8000
@@ -149,7 +149,7 @@ Quit                  ← Exit KiroToggle
 ### Switching to Anthropic Mode
 
 **Steps**:
-1. Click the KiroToggle menu bar icon (shows "K")
+1. Click the Kiront menu bar icon (shows "K")
 2. Click "Toggle Mode"
 3. Wait for the notification: "Switched to anthropic mode"
 4. Icon changes to "A"
@@ -159,7 +159,7 @@ Quit                  ← Exit KiroToggle
 2. ✅ Wait up to 5 seconds for gateway to shut down cleanly
 3. ✅ If still running, send SIGKILL (force stop)
 4. ✅ Verify port 8000 is no longer in use
-5. ✅ `~/.claude/settings.json` is restored from `~/.kirotoggle/settings.backup.json`
+5. ✅ `~/.claude/settings.json` is restored from `~/.kiront/settings.backup.json`
 6. ✅ Gateway environment variables are removed from Claude Code config
 
 **Timeline**: Usually completes in 1-2 seconds.
@@ -179,26 +179,26 @@ If you see an error notification:
 
 ### Enabling Auto-Start
 
-**To launch KiroToggle automatically when you log into macOS**:
+**To launch Kiront automatically when you log into macOS**:
 
-1. Click the KiroToggle menu bar icon
+1. Click the Kiront menu bar icon
 2. Click "Start at Login" (checkbox will be checked ☑)
-3. A LaunchAgent plist is created at `~/Library/LaunchAgents/com.sparkreel.kirotoggle.plist`
+3. A LaunchAgent plist is created at `~/Library/LaunchAgents/uy.ck.kiront.plist`
 
 **Result**: 
-- KiroToggle launches automatically on every macOS login
+- Kiront launches automatically on every macOS login
 - Restores the mode you were in when you last quit (A or K)
 - If in Kiro mode, automatically starts the gateway
 
 ### Disabling Auto-Start
 
-1. Click the KiroToggle menu bar icon
+1. Click the Kiront menu bar icon
 2. Click "Start at Login" again (checkbox will be unchecked ☐)
 3. The LaunchAgent plist is removed
 
 ### Persistent Mode
 
-KiroToggle remembers your current mode across:
+Kiront remembers your current mode across:
 - App restarts
 - macOS reboots
 - Crashes (with recovery)
@@ -214,14 +214,14 @@ If you quit in Kiro mode, the next launch will:
 
 **Critical**: Claude Code does NOT hot-reload environment variables.
 
-When you toggle modes, KiroToggle updates `~/.claude/settings.json`, but Claude Code processes that are already running:
+When you toggle modes, Kiront updates `~/.claude/settings.json`, but Claude Code processes that are already running:
 - Still use the old environment variables they loaded at startup
 - Will not see the new `ANTHROPIC_BASE_URL` or `ANTHROPIC_API_KEY`
 - Will continue sending requests to the wrong endpoint
 
 ### The Warning
 
-After toggling, if KiroToggle detects running Claude Code processes, you'll see:
+After toggling, if Kiront detects running Claude Code processes, you'll see:
 
 ```
 ⚠️ Please restart Claude Code sessions for changes to take effect.
@@ -268,7 +268,7 @@ cat ~/.claude/settings.json | grep ANTHROPIC_BASE_URL
 **Test a Claude request** and watch the gateway logs (if in Kiro mode):
 ```bash
 # In another terminal
-tail -f ~/path/to/kirotoggle/gateway/logs/*.log
+tail -f ~/path/to/kiront/gateway/logs/*.log
 ```
 
 ## Best Practices
@@ -277,13 +277,13 @@ tail -f ~/path/to/kirotoggle/gateway/logs/*.log
 
 **Recommended workflow**:
 1. Decide which mode you need
-2. Toggle to that mode via KiroToggle
+2. Toggle to that mode via Kiront
 3. Then start your Claude Code sessions
 4. This avoids the restart step
 
 ### 2. Keep Auto-Start Enabled
 
-If you frequently use KiroToggle:
+If you frequently use Kiront:
 - Enable "Start at Login"
 - The app will be ready when you need it
 - Minimal memory footprint when idle
@@ -297,9 +297,9 @@ Before starting a long coding session:
 
 ### 4. Don't Manually Edit settings.json
 
-While KiroToggle is managing your modes:
+While Kiront is managing your modes:
 - Avoid manually editing `~/.claude/settings.json`
-- Let KiroToggle handle the `env` variables
+- Let Kiront handle the `env` variables
 - Other settings are safe to edit
 
 If you must manually edit:
@@ -329,14 +329,14 @@ ls ~/path/to/gateway/
 ### Daily Developer Workflow
 
 **Morning**:
-1. Log into macOS (KiroToggle auto-starts)
+1. Log into macOS (Kiront auto-starts)
 2. Menu bar shows "K" (you left it in Kiro mode yesterday)
 3. Gateway is already running
 4. Start Claude Code → immediately connected to gateway
 
 **End of day**:
 1. Finish work in Claude Code
-2. No need to toggle - KiroToggle stays in Kiro mode
+2. No need to toggle - Kiront stays in Kiro mode
 3. Quit or leave it running
 
 ### Troubleshooting a Bug (Need Fresh Environment)
@@ -344,7 +344,7 @@ ls ~/path/to/gateway/
 **Problem**: Claude Code behaving strangely, want to rule out gateway issues.
 
 **Steps**:
-1. Click KiroToggle → "Toggle Mode" (switch to Anthropic)
+1. Click Kiront → "Toggle Mode" (switch to Anthropic)
 2. Restart Claude Code
 3. Test if issue persists
 4. If solved → gateway was the issue
@@ -391,6 +391,6 @@ If you want to go back:
 - Check the icon before starting work
 - Restart Claude Code after every toggle
 - Use auto-start if you toggle frequently
-- KiroToggle handles all the complexity for you
+- Kiront handles all the complexity for you
 
 For more information, see the main [README.md](../README.md) or open an issue on GitHub.

@@ -8,10 +8,10 @@ import (
 
 	"github.com/gen2brain/beeep"
 	"github.com/getlantern/systray"
-	"github.com/sparkreel/kiront/internal/autostart"
-	"github.com/sparkreel/kiront/internal/config"
-	"github.com/sparkreel/kiront/internal/controller"
-	"github.com/sparkreel/kiront/internal/process"
+	"github.com/eng-kitchen/kiront/internal/autostart"
+	"github.com/eng-kitchen/kiront/internal/config"
+	"github.com/eng-kitchen/kiront/internal/controller"
+	"github.com/eng-kitchen/kiront/internal/process"
 )
 
 var ctrl *controller.Controller
@@ -23,9 +23,9 @@ func main() {
 func onReady() {
 	// Initialize controller
 	home := os.Getenv("HOME")
-	configPath := filepath.Join(home, ".kirotoggle", "config.json")
+	configPath := filepath.Join(home, ".kiront", "config.json")
 	settingsPath := filepath.Join(home, ".claude", "settings.json")
-	backupPath := filepath.Join(home, ".kirotoggle", "settings.backup.json")
+	backupPath := filepath.Join(home, ".kiront", "settings.backup.json")
 
 	// Determine gateway directory (relative to executable)
 	execPath, err := os.Executable()
@@ -48,9 +48,9 @@ func onReady() {
 	// Create menu items
 	mToggle := systray.AddMenuItem("Toggle Mode", "Switch between Anthropic and Kiro modes")
 	systray.AddSeparator()
-	mAutoStart := systray.AddMenuItemCheckbox("Start at Login", "Launch KiroToggle on macOS login", ctrl.GetConfig().AutoStart)
+	mAutoStart := systray.AddMenuItemCheckbox("Start at Login", "Launch Kiront on macOS login", ctrl.GetConfig().AutoStart)
 	systray.AddSeparator()
-	mQuit := systray.AddMenuItem("Quit", "Quit KiroToggle")
+	mQuit := systray.AddMenuItem("Quit", "Quit Kiront")
 
 	// Handle clicks
 	go func() {
@@ -71,17 +71,17 @@ func updateMenuBar() {
 	mode := ctrl.GetCurrentMode()
 	if mode == "kiro" {
 		systray.SetTitle("K")
-		systray.SetTooltip("KiroToggle - Kiro Mode")
+		systray.SetTooltip("Kiront - Kiro Mode")
 	} else {
 		systray.SetTitle("A")
-		systray.SetTooltip("KiroToggle - Anthropic Mode")
+		systray.SetTooltip("Kiront - Anthropic Mode")
 	}
 }
 
 func handleToggle() {
 	err := ctrl.ToggleMode()
 	if err != nil {
-		beeep.Alert("KiroToggle Error", err.Error(), "")
+		beeep.Alert("Kiront Error", err.Error(), "")
 		return
 	}
 
@@ -94,7 +94,7 @@ func handleToggle() {
 		msg += "\n\n⚠️ Please restart Claude Code sessions for changes to take effect."
 	}
 
-	beeep.Notify("KiroToggle", msg, "")
+	beeep.Notify("Kiront", msg, "")
 }
 
 func handleAutoStartToggle(item *systray.MenuItem) {
@@ -103,7 +103,7 @@ func handleAutoStartToggle(item *systray.MenuItem) {
 	if cfg.AutoStart {
 		// Disable auto-start
 		if err := autostart.Disable(); err != nil {
-			beeep.Alert("KiroToggle Error", "Failed to disable auto-start: "+err.Error(), "")
+			beeep.Alert("Kiront Error", "Failed to disable auto-start: "+err.Error(), "")
 			return
 		}
 		cfg.AutoStart = false
@@ -111,7 +111,7 @@ func handleAutoStartToggle(item *systray.MenuItem) {
 	} else {
 		// Enable auto-start
 		if err := autostart.Enable(); err != nil {
-			beeep.Alert("KiroToggle Error", "Failed to enable auto-start: "+err.Error(), "")
+			beeep.Alert("Kiront Error", "Failed to enable auto-start: "+err.Error(), "")
 			return
 		}
 		cfg.AutoStart = true

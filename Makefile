@@ -1,18 +1,18 @@
 .PHONY: build clean install test run
 
 build:
-	go build -o bin/kirotoggle .
+	go build -o bin/kiront .
 
 clean:
 	rm -rf bin/
 
 install: build
 	mkdir -p ~/bin
-	cp bin/kirotoggle ~/bin/
-	chmod +x ~/bin/kirotoggle
+	cp bin/kiront ~/bin/
+	chmod +x ~/bin/kiront
 
 test:
 	go test ./... -v
 
 run: build
-	./bin/kirotoggle
+	./bin/kiront
