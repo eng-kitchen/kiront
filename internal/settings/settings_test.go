@@ -133,3 +133,38 @@ func TestApplyKiroMode_MalformedJSON(t *testing.T) {
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "parse")
 }
+
+func TestApplyKiroMode_PreservesExistingEnvVars(t *testing.T) {
+	dir := t.TempDir()
+	settingsPath := filepath.Join(dir, "settings.json")
+	backupPath := filepath.Join(dir, "settings.backup.json")
+
+	// Create settings.json with existing env vars
+	original := map[string]interface{}{
+		"env": map[string]interface{}{
+			"MY_CUSTOM_VAR":  "custom-value",
+			"ANOTHER_VAR":    "another-value",
+			"PATH":           "/usr/local/bin:/usr/bin",
+		},
+		"tui": "fullscreen",
+	}
+	writeJSON(t, settingsPath, original)
+
+	mgr := NewManager(settingsPath, backupPath)
+	err := mgr.ApplyKiroMode("test-api-key")
+
+	assert.NoError(t, err)
+
+	// Verify Kiro vars added
+	modified := readJSON(t, settingsPath)
+	env := modified["env"].(map[string]interface{})
+	assert.Equal(t, "http://127.0.0.1:8000", env["ANTHROPIC_BASE_URL"])
+	assert.Equal(t, "test-api-key", env["ANTHROPIC_API_KEY"])
+	assert.Equal(t, "claude-sonnet-4-5", env["ANTHROPIC_MODEL"])
+	assert.Equal(t, "claude-haiku-4-5", env["ANTHROPIC_SMALL_FAST_MODEL"])
+
+	// Verify existing vars preserved
+	assert.Equal(t, "custom-value", env["MY_CUSTOM_VAR"])
+	assert.Equal(t, "another-value", env["ANOTHER_VAR"])
+	assert.Equal(t, "/usr/local/bin:/usr/bin", env["PATH"])
+}

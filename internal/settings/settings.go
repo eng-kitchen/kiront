@@ -109,13 +109,19 @@ func (m *Manager) ApplyKiroMode(apiKey string) error {
 		return fmt.Errorf("failed to parse settings JSON: %w", err)
 	}
 
-	// Set Kiro mode environment variables
-	settings["env"] = map[string]string{
-		"ANTHROPIC_BASE_URL":          "http://127.0.0.1:8000",
-		"ANTHROPIC_API_KEY":           apiKey,
-		"ANTHROPIC_MODEL":             "claude-sonnet-4-5",
-		"ANTHROPIC_SMALL_FAST_MODEL":  "claude-haiku-4-5",
+	// Get existing env map or create new one
+	env, ok := settings["env"].(map[string]interface{})
+	if !ok {
+		env = make(map[string]interface{})
 	}
+
+	// Merge Kiro vars into existing env
+	env["ANTHROPIC_BASE_URL"] = "http://127.0.0.1:8000"
+	env["ANTHROPIC_API_KEY"] = apiKey
+	env["ANTHROPIC_MODEL"] = "claude-sonnet-4-5"
+	env["ANTHROPIC_SMALL_FAST_MODEL"] = "claude-haiku-4-5"
+
+	settings["env"] = env
 
 	// Marshal back to JSON
 	modifiedData, err := json.MarshalIndent(settings, "", "  ")
