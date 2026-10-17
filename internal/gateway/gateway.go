@@ -21,7 +21,11 @@ type Manager struct {
 }
 
 func NewManager(gatewayDir string, port int) *Manager {
-	homeDir, _ := os.UserHomeDir()
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		// Fallback to temp directory if home dir cannot be determined
+		homeDir = os.TempDir()
+	}
 	pidFile := filepath.Join(homeDir, ".kirotoggle", "gateway.pid")
 
 	return &Manager{
@@ -141,15 +145,20 @@ func (m *Manager) Start() error {
 			if err != nil {
 				continue
 			}
-			defer resp.Body.Close()
 
 			if resp.StatusCode == 200 {
 				var health map[string]string
-				if err := json.NewDecoder(resp.Body).Decode(&health); err == nil {
-					if health["status"] == "healthy" {
-						return nil
-					}
+				if err := json.NewDecoder(resp.Body).Decode(&health); err != nil {
+					resp.Body.Close()
+					continue
 				}
+				resp.Body.Close()
+
+				if health["status"] == "healthy" {
+					return nil
+				}
+			} else {
+				resp.Body.Close()
 			}
 		}
 	}
