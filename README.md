@@ -34,23 +34,38 @@ Kiront automates this entire workflow into a one-click menu bar toggle.
 
 ## Installation
 
+### Download (Recommended)
+
+1. **Download the latest release**: [Kiront.dmg](https://github.com/eng-kitchen/kiront/releases/latest/download/Kiront.dmg)
+
+2. **Open the DMG**: Double-click `Kiront.dmg` to mount it
+
+3. **Install the app**: Drag `Kiront.app` to your `/Applications` folder (or `~/Applications`)
+
+4. **First launch**: 
+   - Right-click on `Kiront.app` and select **Open**
+   - Click **Open** when macOS asks for confirmation
+   - This is only needed the first time (macOS Gatekeeper security)
+
+5. **Look for the menu bar icon**: After launching, you'll see "A" (Anthropic mode) or "K" (Kiro mode) in your menu bar
+
+The first time you run Kiront, it will create the necessary configuration files in `~/.kiront/`.
+
 ### Build from Source
+
+For developers who want to build from source:
 
 ```bash
 # Clone the repository
-cd /path/to/kiront
+git clone https://github.com/eng-kitchen/kiront.git
+cd kiront
 
-# Build the application
-make build
-
-# Install to ~/bin (optional)
+# Build and install
 make install
 
-# Run the application
-./bin/kiront
+# Or just build without installing
+make build
 ```
-
-The first time you run Kiront, it will create the necessary configuration files in `~/.kiront/`.
 
 ## Configuration
 
