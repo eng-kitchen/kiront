@@ -28,6 +28,30 @@ jobs:
           codesign --sign - --force --deep Kiront.app
           xattr -cr Kiront.app
 
+      - name: Smoke test
+        run: |
+          echo "Installing and testing app..."
+          mkdir -p ~/Applications
+          cp -r Kiront.app ~/Applications/
+          open ~/Applications/Kiront.app
+          sleep 2
+          if pgrep -x kiront > /dev/null; then
+            echo "✓ App started successfully"
+          else
+            echo "✗ App failed to start"
+            exit 1
+          fi
+          sleep 5
+          if pgrep -x kiront > /dev/null; then
+            echo "✓ App still running (no crash)"
+          else
+            echo "✗ App crashed"
+            exit 1
+          fi
+          pkill -KILL -x kiront
+          rm -rf ~/Applications/Kiront.app
+          echo "✓ Smoke test passed"
+
       - name: Package DMG
         run: |
           hdiutil create \
